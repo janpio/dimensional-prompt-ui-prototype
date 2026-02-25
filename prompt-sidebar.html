@@ -86,7 +86,10 @@
   .sidebar-item:last-child { margin-bottom: 6px; }
   .sidebar-item:hover { background: #fafafa; }
   .sidebar-item.selected { background: #f4f4f5; font-weight: 600; }
-  .sidebar-item.dimmed { opacity: 0.35; }
+  .sidebar-item.dimmed { opacity: 0.85; }
+  .sidebar-item.disabled { opacity: 0.2; cursor: not-allowed; }
+  .sidebar-item.disabled .sidebar-item-label { text-decoration: line-through; }
+  .sidebar-item.disabled:hover { background: transparent; }
 
   .s-dot {
     width: 8px;
@@ -356,14 +359,36 @@ var countEl     = document.getElementById('count');
 var filtersEl   = document.getElementById('activeFilters');
 var allBtn      = document.getElementById('sidebarAll');
 
+function wouldBeCount(tag) {
+  var count = 0;
+  trows.forEach(function(row) {
+    var rowTags = row.dataset.tags.split('|||');
+    if (Array.from(active).concat([tag]).every(function(f) { return rowTags.indexOf(f) !== -1; })) count++;
+  });
+  return count;
+}
+
 function applyFilters() {
   var anyActive = active.size > 0;
   clearBtn.classList.toggle('visible', anyActive);
   allBtn.classList.toggle('active', !anyActive);
 
   sidebarItems.forEach(function(item) {
-    item.classList.toggle('selected', active.has(item.dataset.tag));
-    item.classList.toggle('dimmed', anyActive && !active.has(item.dataset.tag));
+    var isSelected = active.has(item.dataset.tag);
+    var isDimmed = anyActive && !isSelected;
+    item.classList.toggle('selected', isSelected);
+    item.classList.toggle('dimmed', isDimmed);
+    var cntEl = item.querySelector('.sidebar-item-count');
+    if (cntEl) {
+      if (isDimmed) {
+        var wbc = wouldBeCount(item.dataset.tag);
+        cntEl.textContent = wbc;
+        item.classList.toggle('disabled', wbc === 0);
+      } else {
+        cntEl.textContent = tagCount.get(item.dataset.tag) || 0;
+        item.classList.remove('disabled');
+      }
+    }
   });
 
   var visibleCount = 0;
@@ -398,6 +423,7 @@ function applyFilters() {
 
 sidebarItems.forEach(function(item) {
   item.addEventListener('click', function() {
+    if (item.classList.contains('disabled')) return;
     if (active.has(item.dataset.tag)) { active.delete(item.dataset.tag); }
     else { active.add(item.dataset.tag); }
     applyFilters();

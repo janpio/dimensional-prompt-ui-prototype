@@ -61,7 +61,11 @@
   }
   .fp:hover { box-shadow: 0 0 0 2px rgba(0,0,0,0.10); }
   .fp.selected { border-color: #27272a; box-shadow: 0 0 0 1px #27272a; }
-  .fp.dimmed { opacity: 0.3; }
+  .fp.dimmed { opacity: 0.85; }
+  .fp-count { display: none; margin-left: 3px; font-size: 10px; opacity: 0.75; }
+  .fp.dimmed .fp-count { display: inline; }
+  .fp.disabled { opacity: 0.15; cursor: not-allowed; text-decoration: line-through; }
+  .fp.disabled:hover { box-shadow: none; }
 
   .filter-count {
     font-size: 11px;
@@ -197,7 +201,7 @@ DATA.forEach(function(row) {
 var uniqueTags = Array.from(seen.values());
 
 var filterPills = uniqueTags.map(function(t) {
-  return '<span class="fp ' + esc(t.c) + '" data-tag="' + esc(t.v) + '">' + esc(t.v) + '</span>';
+  return '<span class="fp ' + esc(t.c) + '" data-tag="' + esc(t.v) + '">' + esc(t.v) + '<span class="fp-count"></span></span>';
 }).join('');
 
 var tableRows = DATA.map(function(row, i) {
@@ -229,13 +233,33 @@ var clearBtn   = document.getElementById('clearBtn');
 var noResults  = document.getElementById('noResults');
 var countEl    = document.getElementById('count');
 
+function wouldBeCount(tag) {
+  var count = 0;
+  rows.forEach(function(row) {
+    var rowTags = row.dataset.tags.split('|||');
+    if (Array.from(active).concat([tag]).every(function(f) { return rowTags.indexOf(f) !== -1; })) count++;
+  });
+  return count;
+}
+
 function applyFilters() {
   var anyActive = active.size > 0;
   clearBtn.classList.toggle('visible', anyActive);
 
   fps.forEach(function(fp) {
-    fp.classList.toggle('selected', active.has(fp.dataset.tag));
-    fp.classList.toggle('dimmed', anyActive && !active.has(fp.dataset.tag));
+    var isSelected = active.has(fp.dataset.tag);
+    var isDimmed = anyActive && !isSelected;
+    fp.classList.toggle('selected', isSelected);
+    fp.classList.toggle('dimmed', isDimmed);
+    var fpCount = fp.querySelector('.fp-count');
+    if (isDimmed) {
+      var wbc = wouldBeCount(fp.dataset.tag);
+      fpCount.textContent = wbc;
+      fp.classList.toggle('disabled', wbc === 0);
+    } else {
+      fpCount.textContent = '';
+      fp.classList.remove('disabled');
+    }
   });
 
   var visibleCount = 0;
@@ -252,6 +276,7 @@ function applyFilters() {
 
 fps.forEach(function(fp) {
   fp.addEventListener('click', function() {
+    if (fp.classList.contains('disabled')) return;
     if (active.has(fp.dataset.tag)) { active.delete(fp.dataset.tag); }
     else { active.add(fp.dataset.tag); }
     applyFilters();
