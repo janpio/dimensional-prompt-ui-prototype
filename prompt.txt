@@ -1,0 +1,91 @@
+Inputs
+Country: Country where the product will be marketed.
+Language: Language for the prompts.
+Product: The main product or service the company is trying to market
+Product attributes: List of product or services attributes
+ICP: List of target customers the company is marketing to
+Locations: List of locations within a given country where the company want to market the product
+Competitors: List of main competitors
+Top of the funnel: List of informational themes people will search about when gathering info related to the product.
+
+Country: Spain
+Language: English
+Product: Debit card
+Product Attributes:
+* No issuance fee and no maintenance fee
+* 0% fee on foreign-currency payments at physical merchants worldwide, every day of the week
+* 0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)
+* Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain
+* Physical card shipped for free to your home in 10-15 days
+* Compatible with mobile wallets (Apple Pay, Google Pay, etc.)
+* Contactless withdrawals from your phone or smartwatch
+* Instant card lock and unlock from the app
+* Card transaction notifications
+* Mastercard network
+* Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks
+ICP:
+* Young people in Spain (youth segment)
+* Digital users comfortable with app-based banking
+* Frequent travelers or people planning trips abroad
+* Young people on a tight budget looking to save on fees
+* Group travelers who share expenses
+* Subscription users (Netflix, Spotify, gyms)
+* People who prefer mobile/contactless payments over cash
+Locations: None
+Competitors:
+* BBVA (Standard Travel Pack and Basic Travel Pack)
+* N26 (Standard)
+* Revolut (Standard)
+* Wise (formerly TransferWise) - multi-currency card with an exchange rate close to the interbank rate
+* B100 (by Abanca) - Spanish neobank with no foreign-currency fees and an eco-friendly model
+* Vivid Money - cashback and commission-free payments abroad
+* Banco Santander (Travel Prepaid Card) - travel prepaid card with no currency exchange fee
+* ABANCA Tú NX - debit card with up to 5 free international withdrawals per month
+Top of the funnel:
+* Tips for preparing for your first trip abroad
+* What to bring and prepare before traveling to another country
+* How to manage money when traveling abroad
+* How to avoid extra fees when paying in another currency
+* Best ways to pay when traveling outside Europe
+* Which currency should I use when I travel to [country]
+* Is it better to pay in cash or with a card when traveling abroad?
+* How to organize the budget for a group trip with friends
+* How to split expenses on a trip with friends
+* Things you should know before traveling outside the eurozone
+* How to save money when traveling abroad
+* What to do if you lose your wallet while traveling
+* Essential apps for traveling abroad
+* How to plan a cheap trip with friends
+* What documents and essential items do I need for a trip abroad
+* How to avoid hidden fees when traveling
+* Is it safe to use your bank card abroad?
+* Best destinations for a budget-friendly trip with friends
+* How much cash should I carry when traveling abroad?
+* What to know about exchange rates before your trip
+
+Not branded prompts
+Your job is to generate not branded prompts for all the following topics:
+* Topic = TOFU Product:
+* Topic = BOFU Product:
+* Topic = TOFU Product + ICP (one line for each ICP the company markets to)
+* Topic = BOFU Product + ICP (one line for each ICP the company markets to)
+* Topic = TOFU Product + attributes (one line for each product attribute the company want to feature)
+* Topic = BOFU Product + attributes (one line for each product attribute the company want to feature)
+* Topic= TOFU Product + location (if it makes sense. One line for each location the company wants to market to)
+* Topic= BOFU Product + location (if it makes sense. One line for each location the company wants to market to)
+
+For each topic whenever you generate prompts, you should:
+* Generate 2 prompts for TOFU topic
+* Generate 5 prompts for BOFU topics
+
+The output should follow this format:
+"Prompt", "topic", country (2 letter code), tag0;tag1;tag2;tag3;etc 
+Where: 
+prompt = the generated prompt 
+topic = "product"-"ICP"-"attribute"-"funnel stage" (combined with hyphens, no quotes around the terms
+Country is a two letter code of the country in lowercase 
+tag0 = product 
+tag1 = ICP (if any) 
+tag2 = product attribute (if any) 
+tag3 = location(if any) 
+tag4 = funnel stage (TOFU or BOFU)

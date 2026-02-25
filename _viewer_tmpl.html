@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Library</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    background: #f1f1f3;
+    color: #18181b;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+  .page-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #09090b;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #e4e4e7;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 7px 18px 9px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #71717a;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 4px 4px 0 0;
+    transition: color 0.12s, background 0.12s;
+  }
+  .tab:hover { color: #27272a; background: rgba(0,0,0,.03); }
+  .tab.active { color: #09090b; border-bottom-color: #09090b; }
+  .tab-n { font-weight: 400; color: #a1a1aa; }
+
+  /* ── Panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Groups ── */
+  .group {
+    background: #fff;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .group-hd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: #fafafa;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #e4e4e7;
+    transition: background 0.1s;
+  }
+  .group-hd:hover { background: #f4f4f5; }
+  .group.shut .group-hd { border-bottom: none; }
+
+  .chev {
+    font-size: 9px;
+    color: #a1a1aa;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .group.shut .chev { transform: rotate(-90deg); }
+
+  .hd-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+
+  .hd-count {
+    font-size: 11px;
+    color: #a1a1aa;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .group-bd { overflow: hidden; }
+  .group.shut .group-bd { display: none; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; }
+  tbody tr { transition: background 0.08s; }
+  tbody tr:hover { background: #fafafa; }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid #f4f4f5; }
+
+  td { padding: 9px 14px; vertical-align: middle; }
+  td.num {
+    width: 36px;
+    text-align: right;
+    color: #d4d4d8;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    padding-right: 8px;
+    white-space: nowrap;
+  }
+  td.prompt { color: #27272a; line-height: 1.55; }
+
+  /* ── Pills ── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.7;
+    white-space: nowrap;
+  }
+  .p-product  { background: #f4f4f5; color: #52525b; }
+  .p-audience { background: #dbeafe; color: #1d4ed8; }
+  .p-feature  { background: #d1fae5; color: #047857; }
+  .p-other    { background: #f4f4f5; color: #52525b; }
+  .p-tofu       { background: #fef9c3; color: #a16207; }
+  .p-bofu       { background: #ede9fe; color: #6d28d9; }
+  .p-branded    { background: #dcfce7; color: #15803d; }
+  .p-competitor { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Inline highlights ── */
+  mark.brand { background: #ecfdf6; color: #15803d; border-radius: 2px; padding: 0 2px; font-style: normal; }
+  mark.comp  { background: #fef2f2; color: #dc2626; border-radius: 2px; padding: 0 2px; font-style: normal; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-title">Prompt Library</div>
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+</div>
+
+<script>
+const DATA = /*DATA_PLACEHOLDER*/;
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+const BRAND = 'imagin';
+const COMPS = ['Banco Santander', 'Vivid Money', 'Revolut', 'ABANCA', 'BBVA', 'Wise', 'N26', 'B100'];
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function highlight(text) {
+  var s = esc(text);
+  s = s.replace(new RegExp(escRe(BRAND), 'gi'),
+    function(m) { return '<mark class="brand">' + m + '</mark>'; });
+  COMPS.forEach(function(c) {
+    s = s.replace(new RegExp(escRe(c), 'gi'),
+      function(m) { return '<mark class="comp">' + m + '</mark>'; });
+  });
+  return s;
+}
+
+function pill(t) {
+  return '<span class="pill ' + esc(t.c) + '">' + esc(t.v) + '</span>';
+}
+
+function buildGroups(rows) {
+  const groups = [], idx = new Map();
+  rows.forEach(function(row) {
+    if (!idx.has(row.topic)) {
+      idx.set(row.topic, groups.length);
+      groups.push({ tags: row.tags, rows: [] });
+    }
+    groups[idx.get(row.topic)].rows.push(row);
+  });
+  return groups;
+}
+
+function renderGroup(g) {
+  var headerPills = g.tags.map(pill).join('');
+  var n = g.rows.length;
+  var bodyRows = g.rows.map(function(r, i) {
+    return '<tr><td class="num">' + (i + 1) + '</td><td class="prompt">' + highlight(r.prompt) + '</td></tr>';
+  }).join('');
+  return '<div class="group">'
+    + '<div class="group-hd" onclick="this.closest(\'.group\').classList.toggle(\'shut\')">'
+    + '<span class="chev">&#9660;</span>'
+    + '<div class="hd-pills">' + headerPills + '</div>'
+    + '<span class="hd-count">' + n + '&thinsp;prompt' + (n !== 1 ? 's' : '') + '</span>'
+    + '</div>'
+    + '<div class="group-bd"><table><tbody>' + bodyRows + '</tbody></table></div>'
+    + '</div>';
+}
+
+function renderPanel(file, i) {
+  var groups = buildGroups(file.rows);
+  return '<div class="panel' + (i === 0 ? ' active' : '') + '" id="p' + i + '">'
+    + groups.map(renderGroup).join('')
+    + '</div>';
+}
+
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach(function(t, j) { t.classList.toggle('active', i === j); });
+  document.querySelectorAll('.panel').forEach(function(p, j) { p.classList.toggle('active', i === j); });
+}
+
+document.getElementById('tabs').innerHTML = DATA.map(function(f, i) {
+  return '<button class="tab' + (i === 0 ? ' active' : '') + '" onclick="switchTab(' + i + ')">'
+    + esc(f.label) + '&ensp;<span class="tab-n">' + f.rows.length + '</span></button>';
+}).join('');
+
+document.getElementById('panels').innerHTML = DATA.map(renderPanel).join('');
+</script>
+</body>
+</html>
