@@ -31,6 +31,10 @@ def parse_csv_line(line):
     return fields
 
 # ── Pill class by value / position ───────────────────────────────────────────
+TAG_ORDER = {'p-product': 0, 'p-other': 0,
+             'p-tofu': 1, 'p-bofu': 1, 'p-branded': 1, 'p-competitor': 1,
+             'p-audience': 2, 'p-feature': 3}
+
 def pill_cls(value, pos):
     v = value.strip()
     if v.upper() == 'TOFU':       return 'p-tofu'

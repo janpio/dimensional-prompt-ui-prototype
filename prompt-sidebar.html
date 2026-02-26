@@ -268,11 +268,11 @@ const COMPS = ['Banco Santander', 'Vivid Money', 'Revolut', 'ABANCA', 'BBVA', 'W
 
 // ── Sidebar group definitions (order matters) ────────────────────────────────
 const GROUPS = [
+  { name: 'Product',  classes: ['p-product', 'p-other'], dots: { 'p-product': 's-product', 'p-other': 's-product' } },
   { name: 'Stage',    classes: ['p-tofu', 'p-bofu', 'p-branded', 'p-competitor'],
     dots:  { 'p-tofu': 's-tofu', 'p-bofu': 's-bofu', 'p-branded': 's-branded', 'p-competitor': 's-competitor' } },
   { name: 'Audience', classes: ['p-audience'], dots: { 'p-audience': 's-audience' } },
   { name: 'Feature',  classes: ['p-feature'],  dots: { 'p-feature': 's-feature' } },
-  { name: 'Product',  classes: ['p-product', 'p-other'], dots: { 'p-product': 's-product', 'p-other': 's-product' } },
 ];
 
 function esc(s) {

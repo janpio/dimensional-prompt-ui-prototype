@@ -42,6 +42,10 @@ def pill_cls(value, pos):
     if pos == 2: return 'p-feature'
     return 'p-other'
 
+TAG_ORDER = {'p-product': 0, 'p-other': 0,
+             'p-tofu': 1, 'p-bofu': 1, 'p-branded': 1, 'p-competitor': 1,
+             'p-audience': 2, 'p-feature': 3}
+
 # ── Process one CSV file ──────────────────────────────────────────────────────
 def process(path, label):
     with open(path, encoding='utf-8') as f:
