@@ -45,6 +45,10 @@ def pill_cls(value, pos):
     if pos == 2: return 'p-feature'
     return 'p-other'
 
+TAG_ORDER = {'p-product': 0, 'p-other': 0,
+             'p-tofu': 1, 'p-bofu': 1, 'p-branded': 1, 'p-competitor': 1,
+             'p-audience': 2, 'p-feature': 3}
+
 # ── Process one CSV file ──────────────────────────────────────────────────────
 def process(path, label):
     with open(path, encoding='utf-8') as f:
@@ -60,8 +64,9 @@ def process(path, label):
         topic    = fields[1]
         tags_raw = fields[3]
         tag_vals = [t.strip() for t in tags_raw.split(';')]
-        tags = [{'v': v, 'c': pill_cls(v, i), 'l': LABEL_MAP.get(v, v)}
-                for i, v in enumerate(tag_vals) if v]
+        tags = sorted([{'v': v, 'c': pill_cls(v, i), 'l': LABEL_MAP.get(v, v)}
+                       for i, v in enumerate(tag_vals) if v],
+                      key=lambda t: TAG_ORDER.get(t['c'], 99))
         rows.append({'prompt': prompt, 'topic': topic, 'tags': tags})
     return {'label': label, 'rows': rows}
 
