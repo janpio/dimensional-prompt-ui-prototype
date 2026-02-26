@@ -301,7 +301,7 @@ var GROUP_LABEL = {
 
 function pill(t) {
   var prefix = GROUP_LABEL[t.c] ? GROUP_LABEL[t.c] + ': ' : '';
-  return '<span class="pill ' + esc(t.c) + '" title="' + esc(prefix + t.v) + '">' + esc(t.v) + '</span>';
+  return '<span class="pill ' + esc(t.c) + '" title="' + esc(prefix + t.v) + '">' + esc(t.l || t.v) + '</span>';
 }
 
 // ── Collect unique tags and counts ───────────────────────────────────────────
@@ -346,7 +346,7 @@ GROUPS.forEach(function(group) {
     var cnt = tagCount.get(t.v) || 0;
     sidebarHTML += '<div class="sidebar-item" data-tag="' + esc(t.v) + '">'
       + '<span class="s-dot ' + dot + '"></span>'
-      + '<span class="sidebar-item-label" title="' + esc(t.v) + '">' + esc(t.v) + '</span>'
+      + '<span class="sidebar-item-label" title="' + esc(t.v) + '">' + esc(t.l || t.v) + '</span>'
       + '<span class="sidebar-item-count">' + cnt + '</span>'
       + '</div>';
   });

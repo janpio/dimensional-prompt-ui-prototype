@@ -172,7 +172,7 @@ function highlight(text) {
 }
 
 function pill(t) {
-  return '<span class="pill ' + esc(t.c) + '">' + esc(t.v) + '</span>';
+  return '<span class="pill ' + esc(t.c) + '">' + esc(t.l || t.v) + '</span>';
 }
 
 function buildGroups(rows) {

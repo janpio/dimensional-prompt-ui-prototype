@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Library</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 13px;
+    background: #f1f1f3;
+    color: #18181b;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ── */
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px; }
+
+  .page-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #09090b;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    border-bottom: 2px solid #e4e4e7;
+    margin-bottom: 20px;
+  }
+  .tab {
+    padding: 7px 18px 9px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: #71717a;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 4px 4px 0 0;
+    transition: color 0.12s, background 0.12s;
+  }
+  .tab:hover { color: #27272a; background: rgba(0,0,0,.03); }
+  .tab.active { color: #09090b; border-bottom-color: #09090b; }
+  .tab-n { font-weight: 400; color: #a1a1aa; }
+
+  /* ── Panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── Groups ── */
+  .group {
+    background: #fff;
+    border: 1px solid #e4e4e7;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+
+  .group-hd {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    background: #fafafa;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #e4e4e7;
+    transition: background 0.1s;
+  }
+  .group-hd:hover { background: #f4f4f5; }
+  .group.shut .group-hd { border-bottom: none; }
+
+  .chev {
+    font-size: 9px;
+    color: #a1a1aa;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .group.shut .chev { transform: rotate(-90deg); }
+
+  .hd-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+
+  .hd-count {
+    font-size: 11px;
+    color: #a1a1aa;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .group-bd { overflow: hidden; }
+  .group.shut .group-bd { display: none; }
+
+  /* ── Table ── */
+  table { width: 100%; border-collapse: collapse; }
+  tbody tr { transition: background 0.08s; }
+  tbody tr:hover { background: #fafafa; }
+  tbody tr:not(:last-child) td { border-bottom: 1px solid #f4f4f5; }
+
+  td { padding: 9px 14px; vertical-align: middle; }
+  td.num {
+    width: 36px;
+    text-align: right;
+    color: #d4d4d8;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    padding-right: 8px;
+    white-space: nowrap;
+  }
+  td.prompt { color: #27272a; line-height: 1.55; }
+
+  /* ── Pills ── */
+  .pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.7;
+    white-space: nowrap;
+  }
+  .p-product  { background: #f4f4f5; color: #52525b; }
+  .p-audience { background: #dbeafe; color: #1d4ed8; }
+  .p-feature  { background: #d1fae5; color: #047857; }
+  .p-other    { background: #f4f4f5; color: #52525b; }
+  .p-tofu       { background: #fef9c3; color: #a16207; }
+  .p-bofu       { background: #ede9fe; color: #6d28d9; }
+  .p-branded    { background: #dcfce7; color: #15803d; }
+  .p-competitor { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Inline highlights ── */
+  mark.brand { background: #ecfdf6; color: #15803d; border-radius: 2px; padding: 0 2px; font-style: normal; }
+  mark.comp  { background: #fef2f2; color: #dc2626; border-radius: 2px; padding: 0 2px; font-style: normal; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-title">Prompt Library</div>
+  <div class="tabs" id="tabs"></div>
+  <div id="panels"></div>
+</div>
+
+<script>
+const DATA = [{"label": "Unbranded", "rows": [{"prompt": "Tips to manage your money efficiently when traveling abroad and avoid unnecessary bank fees", "topic": "debit card---TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Best ways to pay in foreign currencies while traveling outside the eurozone", "topic": "debit card---TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Best debit cards in Spain for paying and withdrawing cash abroad without fees", "topic": "debit card---BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Compare debit cards in Spain with no foreign transaction fees", "topic": "debit card---BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Which debit card in Spain offers free ATM withdrawals abroad?", "topic": "debit card---BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Top debit cards in Spain for young travelers looking to save on fees", "topic": "debit card---BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Open a debit card in Spain with no maintenance or issuance fees", "topic": "debit card---BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Smart money tips for young people in Spain traveling abroad for the first time", "topic": "debit card-Young people in Spain (youth segment)--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people in Spain (youth segment)", "c": "p-audience", "l": "Youth Spain"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How digital banking helps app savvy users manage spending abroad", "topic": "debit card-Digital users comfortable with app-based banking--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Digital users comfortable with app-based banking", "c": "p-audience", "l": "App-first users"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to manage travel expenses easily if you travel abroad frequently", "topic": "debit card-Frequent travelers or people planning trips abroad--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Frequent travelers or people planning trips abroad", "c": "p-audience", "l": "Frequent travelers"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to avoid unnecessary bank fees when you are young and on a tight budget", "topic": "debit card-Young people on a tight budget looking to save on fees--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people on a tight budget looking to save on fees", "c": "p-audience", "l": "Budget youth"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Best ways to organize and split expenses on a group trip with friends", "topic": "debit card-Group travelers who share expenses--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Group travelers who share expenses", "c": "p-audience", "l": "Group travelers"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to manage recurring subscriptions while traveling abroad", "topic": "debit card-Subscription users (Netflix, Spotify, gyms)--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Subscription users (Netflix, Spotify, gyms)", "c": "p-audience", "l": "Subscription users"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Is it safe to rely only on mobile payments when traveling abroad?", "topic": "debit card-People who prefer mobile/contactless payments over cash--TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "People who prefer mobile/contactless payments over cash", "c": "p-audience", "l": "Contactless payers"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Best debit cards in Spain for young people who travel abroad", "topic": "debit card-Young people in Spain (youth segment)--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people in Spain (youth segment)", "c": "p-audience", "l": "Youth Spain"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Top app based debit cards in Spain for digital users", "topic": "debit card-Digital users comfortable with app-based banking--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Digital users comfortable with app-based banking", "c": "p-audience", "l": "App-first users"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Best debit cards in Spain for frequent travelers with no foreign fees", "topic": "debit card-Frequent travelers or people planning trips abroad--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Frequent travelers or people planning trips abroad", "c": "p-audience", "l": "Frequent travelers"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Which debit card in Spain helps young people save on international payments?", "topic": "debit card-Young people on a tight budget looking to save on fees--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people on a tight budget looking to save on fees", "c": "p-audience", "l": "Budget youth"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Best debit cards to split expenses easily on trips with friends", "topic": "debit card-Group travelers who share expenses--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Group travelers who share expenses", "c": "p-audience", "l": "Group travelers"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards in Spain that work best for managing online subscriptions", "topic": "debit card-Subscription users (Netflix, Spotify, gyms)--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Subscription users (Netflix, Spotify, gyms)", "c": "p-audience", "l": "Subscription users"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Best mobile friendly debit cards in Spain with contactless payments", "topic": "debit card-People who prefer mobile/contactless payments over cash--BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "People who prefer mobile/contactless payments over cash", "c": "p-audience", "l": "Contactless payers"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "How to choose a debit card with no issuance or maintenance fees in Spain", "topic": "debit card--No issuance fee and no maintenance fee-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "No issuance fee and no maintenance fee", "c": "p-feature", "l": "Zero fees"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to avoid foreign transaction fees when paying abroad with your card", "topic": "debit card--0% fee on foreign-currency payments at physical merchants worldwide, every day of the week-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "c": "p-feature", "l": "Free FX payments"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to withdraw cash abroad without paying extra bank fees", "topic": "debit card--0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "c": "p-feature", "l": "Free ATM abroad"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Where to withdraw cash for free in Spain using your debit card", "topic": "debit card--Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "c": "p-feature", "l": "11k CaixaBank ATMs"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How long does it take to receive a physical debit card at home in Spain?", "topic": "debit card--Physical card shipped for free to your home in 10-15 days-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Physical card shipped for free to your home in 10-15 days", "c": "p-feature", "l": "Free card delivery"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to use your debit card with Apple Pay or Google Pay when traveling", "topic": "debit card--Compatible with mobile wallets (Apple Pay, Google Pay, etc.)-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "c": "p-feature", "l": "Mobile wallets"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How contactless ATM withdrawals work with your phone or smartwatch", "topic": "debit card--Contactless withdrawals from your phone or smartwatch-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Contactless withdrawals from your phone or smartwatch", "c": "p-feature", "l": "Contactless cash"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "What to do if you lose your debit card abroad and need to block it instantly", "topic": "debit card--Instant card lock and unlock from the app-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Instant card lock and unlock from the app", "c": "p-feature", "l": "Card lock/unlock"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How real time transaction notifications help you control spending abroad", "topic": "debit card--Card transaction notifications-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Card transaction notifications", "c": "p-feature", "l": "Tx notifications"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Why it matters if your debit card works on the Mastercard network abroad", "topic": "debit card--Mastercard network-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Mastercard network", "c": "p-feature", "l": "Mastercard network"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "How to save up to 3.95% on currency exchange fees when traveling outside the eurozone", "topic": "debit card--Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks-TOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "c": "p-feature", "l": "FX savings vs banks"}, {"v": "TOFU", "c": "p-tofu", "l": "TOFU"}]}, {"prompt": "Best debit cards in Spain with no issuance or maintenance fees", "topic": "debit card--No issuance fee and no maintenance fee-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "No issuance fee and no maintenance fee", "c": "p-feature", "l": "Zero fees"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards in Spain with 0% foreign transaction fees worldwide", "topic": "debit card--0% fee on foreign-currency payments at physical merchants worldwide, every day of the week-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "c": "p-feature", "l": "Free FX payments"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Top debit cards for free ATM withdrawals abroad from Spain", "topic": "debit card--0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "c": "p-feature", "l": "Free ATM abroad"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards in Spain with free withdrawals at CaixaBank ATMs", "topic": "debit card--Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "c": "p-feature", "l": "11k CaixaBank ATMs"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Best debit cards compatible with Apple Pay and Google Pay in Spain", "topic": "debit card--Compatible with mobile wallets (Apple Pay, Google Pay, etc.)-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "c": "p-feature", "l": "Mobile wallets"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards in Spain with instant lock and unlock from the app", "topic": "debit card--Instant card lock and unlock from the app-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Instant card lock and unlock from the app", "c": "p-feature", "l": "Card lock/unlock"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards with real time transaction notifications in Spain", "topic": "debit card--Card transaction notifications-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Card transaction notifications", "c": "p-feature", "l": "Tx notifications"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Best Mastercard debit cards in Spain for international travel", "topic": "debit card--Mastercard network-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Mastercard network", "c": "p-feature", "l": "Mastercard network"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}, {"prompt": "Debit cards in Spain that save up to 3.95% on currency exchange fees", "topic": "debit card--Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks-BOFU", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "c": "p-feature", "l": "FX savings vs banks"}, {"v": "BOFU", "c": "p-bofu", "l": "BOFU"}]}]}, {"label": "Branded", "rows": [{"prompt": "Is the imagin debit card a good option for traveling abroad from Spain?", "topic": "branded-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card charge fees for paying in foreign currencies?", "topic": "branded-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "How does the imagin debit card compare to other travel cards in Spain?", "topic": "branded-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can I use the imagin debit card worldwide without extra costs?", "topic": "branded-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card worth it for everyday payments and trips abroad?", "topic": "branded-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card a good choice for young people in Spain?", "topic": "branded-debit card-Young people in Spain (youth segment)-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people in Spain (youth segment)", "c": "p-audience", "l": "Youth Spain"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Why should digital users choose the imagin debit card for app based banking?", "topic": "branded-debit card-Digital users comfortable with app-based banking-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Digital users comfortable with app-based banking", "c": "p-audience", "l": "App-first users"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card suitable for frequent travelers from Spain?", "topic": "branded-debit card-Frequent travelers or people planning trips abroad-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Frequent travelers or people planning trips abroad", "c": "p-audience", "l": "Frequent travelers"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can young people on a tight budget save money with the imagin debit card?", "topic": "branded-debit card-Young people on a tight budget looking to save on fees-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people on a tight budget looking to save on fees", "c": "p-audience", "l": "Budget youth"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card useful for splitting expenses on trips with friends?", "topic": "branded-debit card-Group travelers who share expenses-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Group travelers who share expenses", "c": "p-audience", "l": "Group travelers"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card work well for managing subscriptions like Netflix or Spotify?", "topic": "branded-debit card-Subscription users (Netflix, Spotify, gyms)-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Subscription users (Netflix, Spotify, gyms)", "c": "p-audience", "l": "Subscription users"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can I rely on the imagin debit card for mobile and contactless payments abroad?", "topic": "branded-debit card-People who prefer mobile/contactless payments over cash-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "People who prefer mobile/contactless payments over cash", "c": "p-audience", "l": "Contactless payers"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card have no issuance or maintenance fees?", "topic": "branded-debit card--No issuance fee and no maintenance fee", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "No issuance fee and no maintenance fee", "c": "p-feature", "l": "Zero fees"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card really offer 0% fees on foreign currency payments worldwide?", "topic": "branded-debit card--0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "c": "p-feature", "l": "Free FX payments"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can I withdraw cash abroad with the imagin debit card without paying bank fees?", "topic": "branded-debit card--0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "c": "p-feature", "l": "Free ATM abroad"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card allow free withdrawals at CaixaBank ATMs in Spain?", "topic": "branded-debit card--Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "c": "p-feature", "l": "11k CaixaBank ATMs"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "How long does it take to receive the imagin physical debit card at home?", "topic": "branded-debit card--Physical card shipped for free to your home in 10-15 days", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Physical card shipped for free to your home in 10-15 days", "c": "p-feature", "l": "Free card delivery"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card compatible with Apple Pay and Google Pay?", "topic": "branded-debit card--Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "c": "p-feature", "l": "Mobile wallets"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can I make contactless ATM withdrawals with the imagin debit card using my phone or smartwatch?", "topic": "branded-debit card--Contactless withdrawals from your phone or smartwatch", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Contactless withdrawals from your phone or smartwatch", "c": "p-feature", "l": "Contactless cash"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Can I instantly lock and unlock my imagin debit card from the app?", "topic": "branded-debit card--Instant card lock and unlock from the app", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Instant card lock and unlock from the app", "c": "p-feature", "l": "Card lock/unlock"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Does the imagin debit card send real time transaction notifications?", "topic": "branded-debit card--Card transaction notifications", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Card transaction notifications", "c": "p-feature", "l": "Tx notifications"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "Is the imagin debit card part of the Mastercard network?", "topic": "branded-debit card--Mastercard network", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Mastercard network", "c": "p-feature", "l": "Mastercard network"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}, {"prompt": "How much can I save on exchange rates with the imagin debit card outside the eurozone?", "topic": "branded-debit card--Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "c": "p-feature", "l": "FX savings vs banks"}, {"v": "branded", "c": "p-branded", "l": "branded"}]}]}, {"label": "Competitors", "rows": [{"prompt": "Which debit card is better for traveling abroad from Spain: imagin or Revolut Standard?", "topic": "competitor-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin debit card cheaper than N26 Standard for foreign payments?", "topic": "competitor-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Should I choose imagin or Wise for paying in different currencies?", "topic": "competitor-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin debit card a better option than BBVA Travel Pack for trips abroad?", "topic": "competitor-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "How does imagin compare to Banco Santander Travel Prepaid Card for international use?", "topic": "competitor-debit card--", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin or B100 a better debit card for young people in Spain?", "topic": "competitor-debit card-Young people in Spain (youth segment)-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people in Spain (youth segment)", "c": "p-audience", "l": "Youth Spain"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "For digital app based banking, is imagin better than N26 Standard?", "topic": "competitor-debit card-Digital users comfortable with app-based banking-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Digital users comfortable with app-based banking", "c": "p-audience", "l": "App-first users"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Which card is more convenient for frequent travelers: imagin or Revolut Standard?", "topic": "competitor-debit card-Frequent travelers or people planning trips abroad-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Frequent travelers or people planning trips abroad", "c": "p-audience", "l": "Frequent travelers"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin more affordable than ABANCA Tú NX for young people on a tight budget?", "topic": "competitor-debit card-Young people on a tight budget looking to save on fees-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Young people on a tight budget looking to save on fees", "c": "p-audience", "l": "Budget youth"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "For group trips with friends, is imagin or Vivid Money better to manage shared expenses?", "topic": "competitor-debit card-Group travelers who share expenses-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Group travelers who share expenses", "c": "p-audience", "l": "Group travelers"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Which card works better for subscriptions like Netflix or Spotify: imagin or Revolut Standard?", "topic": "competitor-debit card-Subscription users (Netflix, Spotify, gyms)-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Subscription users (Netflix, Spotify, gyms)", "c": "p-audience", "l": "Subscription users"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "For mobile and contactless payments abroad, is imagin better than N26 Standard?", "topic": "competitor-debit card-People who prefer mobile/contactless payments over cash-", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "People who prefer mobile/contactless payments over cash", "c": "p-audience", "l": "Contactless payers"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Does imagin have fewer fees than BBVA Travel Pack with no issuance or maintenance costs?", "topic": "competitor-debit card--No issuance fee and no maintenance fee", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "No issuance fee and no maintenance fee", "c": "p-feature", "l": "Zero fees"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Which card offers better 0% foreign currency payments: imagin or Wise?", "topic": "competitor-debit card--0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on foreign-currency payments at physical merchants worldwide, every day of the week", "c": "p-feature", "l": "Free FX payments"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Between imagin and ABANCA Tú NX, which has better conditions for free ATM withdrawals abroad?", "topic": "competitor-debit card--0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "0% fee on debit cash withdrawals at ATMs abroad (the ATM owner/operator may still charge a fee)", "c": "p-feature", "l": "Free ATM abroad"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin better than Banco Santander Travel Prepaid Card for free withdrawals in Spain?", "topic": "competitor-debit card--Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Free cash withdrawals at more than 11,000 CaixaBank ATMs in Spain", "c": "p-feature", "l": "11k CaixaBank ATMs"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Does imagin deliver the physical debit card faster than N26 Standard?", "topic": "competitor-debit card--Physical card shipped for free to your home in 10-15 days", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Physical card shipped for free to your home in 10-15 days", "c": "p-feature", "l": "Free card delivery"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Which card has better mobile wallet compatibility: imagin or Revolut Standard?", "topic": "competitor-debit card--Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Compatible with mobile wallets (Apple Pay, Google Pay, etc.)", "c": "p-feature", "l": "Mobile wallets"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Can I lock and unlock my card faster with imagin or with Vivid Money?", "topic": "competitor-debit card--Instant card lock and unlock from the app", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Instant card lock and unlock from the app", "c": "p-feature", "l": "Card lock/unlock"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Which card provides better real time transaction notifications: imagin or N26 Standard?", "topic": "competitor-debit card--Card transaction notifications", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Card transaction notifications", "c": "p-feature", "l": "Tx notifications"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}, {"prompt": "Is imagin or Revolut Standard better for saving on exchange rates outside the eurozone?", "topic": "competitor-debit card--Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "tags": [{"v": "debit card", "c": "p-product", "l": "debit card"}, {"v": "Save 2.5% in EU countries with a non-euro currency, and 3.95% in the rest of the world compared to the usual fees charged by other banks", "c": "p-feature", "l": "FX savings vs banks"}, {"v": "competitor", "c": "p-competitor", "l": "competitor"}]}]}];
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+const BRAND = 'imagin';
+const COMPS = ['Banco Santander', 'Vivid Money', 'Revolut', 'ABANCA', 'BBVA', 'Wise', 'N26', 'B100'];
+
+function escRe(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+function highlight(text) {
+  var s = esc(text);
+  s = s.replace(new RegExp(escRe(BRAND), 'gi'),
+    function(m) { return '<mark class="brand">' + m + '</mark>'; });
+  COMPS.forEach(function(c) {
+    s = s.replace(new RegExp(escRe(c), 'gi'),
+      function(m) { return '<mark class="comp">' + m + '</mark>'; });
+  });
+  return s;
+}
+
+function pill(t) {
+  return '<span class="pill ' + esc(t.c) + '">' + esc(t.l || t.v) + '</span>';
+}
+
+function buildGroups(rows) {
+  const groups = [], idx = new Map();
+  rows.forEach(function(row) {
+    if (!idx.has(row.topic)) {
+      idx.set(row.topic, groups.length);
+      groups.push({ tags: row.tags, rows: [] });
+    }
+    groups[idx.get(row.topic)].rows.push(row);
+  });
+  return groups;
+}
+
+function renderGroup(g) {
+  var headerPills = g.tags.map(pill).join('');
+  var n = g.rows.length;
+  var bodyRows = g.rows.map(function(r, i) {
+    return '<tr><td class="num">' + (i + 1) + '</td><td class="prompt">' + highlight(r.prompt) + '</td></tr>';
+  }).join('');
+  return '<div class="group">'
+    + '<div class="group-hd" onclick="this.closest(\'.group\').classList.toggle(\'shut\')">'
+    + '<span class="chev">&#9660;</span>'
+    + '<div class="hd-pills">' + headerPills + '</div>'
+    + '<span class="hd-count">' + n + '&thinsp;prompt' + (n !== 1 ? 's' : '') + '</span>'
+    + '</div>'
+    + '<div class="group-bd"><table><tbody>' + bodyRows + '</tbody></table></div>'
+    + '</div>';
+}
+
+function renderPanel(file, i) {
+  var groups = buildGroups(file.rows);
+  return '<div class="panel' + (i === 0 ? ' active' : '') + '" id="p' + i + '">'
+    + groups.map(renderGroup).join('')
+    + '</div>';
+}
+
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach(function(t, j) { t.classList.toggle('active', i === j); });
+  document.querySelectorAll('.panel').forEach(function(p, j) { p.classList.toggle('active', i === j); });
+}
+
+document.getElementById('tabs').innerHTML = DATA.map(function(f, i) {
+  return '<button class="tab' + (i === 0 ? ' active' : '') + '" onclick="switchTab(' + i + ')">'
+    + esc(f.label) + '&ensp;<span class="tab-n">' + f.rows.length + '</span></button>';
+}).join('');
+
+document.getElementById('panels').innerHTML = DATA.map(renderPanel).join('');
+</script>
+</body>
+</html>

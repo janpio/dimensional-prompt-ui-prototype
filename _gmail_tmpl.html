@@ -195,7 +195,7 @@ var GROUP_LABEL = {
 
 function pill(t) {
   var prefix = GROUP_LABEL[t.c] ? GROUP_LABEL[t.c] + ': ' : '';
-  return '<span class="pill ' + esc(t.c) + '" title="' + esc(prefix + t.v) + '">' + esc(t.v) + '</span>';
+  return '<span class="pill ' + esc(t.c) + '" title="' + esc(prefix + t.v) + '">' + esc(t.l || t.v) + '</span>';
 }
 
 // Collect unique tags across all rows, in order of first appearance
@@ -208,7 +208,7 @@ DATA.forEach(function(row) {
 var uniqueTags = Array.from(seen.values());
 
 var filterPills = uniqueTags.map(function(t) {
-  return '<span class="fp ' + esc(t.c) + '" data-tag="' + esc(t.v) + '">' + esc(t.v) + '<span class="fp-count"></span></span>';
+  return '<span class="fp ' + esc(t.c) + '" data-tag="' + esc(t.v) + '">' + esc(t.l || t.v) + '<span class="fp-count"></span></span>';
 }).join('');
 
 var tableRows = DATA.map(function(row, i) {
